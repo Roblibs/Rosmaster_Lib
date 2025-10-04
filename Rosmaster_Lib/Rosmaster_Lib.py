@@ -1058,7 +1058,7 @@ class Rosmaster(object):
         self.__pitch = 0.0
 
     def get_akm_default_angle(self):
-        """Read stored default front steering angle (R2 Ackermann) or -1 timeout."""
+        """(request) Read stored default front steering angle (R2 Ackermann) or -1 timeout."""
         if not self.__akm_readed_angle:
             self.__request_data(self.FUNC_AKM_DEF_ANGLE, self.__AKM_SERVO_ID)
             akm_count = 0
@@ -1071,10 +1071,8 @@ class Rosmaster(object):
                 time.sleep(.01)
         return self.__akm_def_angle
 
-
-
     def get_uart_servo_value(self, servo_id):
-        """Return (id, pulse_value) for servo_id or (-1,-1) timeout, (-2,-2) error.
+        """(request) Return (id, pulse_value) for servo_id or (-1,-1) timeout, (-2,-2) error.
         servo_id=[1-250]
         """
         try:
@@ -1096,7 +1094,7 @@ class Rosmaster(object):
             return -2, -2
 
     def get_uart_servo_angle(self, s_id):
-        """Return joint angle degrees or -1 out-of-range, -2 comms error.
+        """(request) Return joint angle degrees or -1 out-of-range, -2 comms error.
         Read the Angle of the bus steering gear, s_id indicates the ID number of the steering gear to be read, s_id=[1-6]
         """
         try:
@@ -1150,6 +1148,7 @@ class Rosmaster(object):
 
     def get_uart_servo_angle_array(self):
         """
+        (request)
         一次性读取六个舵机的角度[xx, xx, xx, xx, xx, xx]，如果某个舵机错误则那一位为-1
         Bulk read all 6 joint angles (invalid -> -1)
         Read the angles of three steering gear [xx, xx, xx, xx, xx, xx] at one time. If one steering gear is wrong, that one is -1
@@ -1185,25 +1184,25 @@ class Rosmaster(object):
             return [-2, -2, -2, -2, -2, -2]
 
     def get_accelerometer_data(self):
-        """Return (ax, ay, az) m/s^2 from last auto-report."""
+        """(report) Return (ax, ay, az) m/s^2 from last auto-report."""
         a_x, a_y, a_z = self.__ax, self.__ay, self.__az
         # self.__ax, self.__ay, self.__az = 0.0, 0.0, 0.0
         return a_x, a_y, a_z
 
     def get_gyroscope_data(self):
-        """Return (gx, gy, gz) rad/s from last auto-report."""
+        """(report) Return (gx, gy, gz) rad/s from last auto-report."""
         g_x, g_y, g_z = self.__gx, self.__gy, self.__gz
         # self.__gx, self.__gy, self.__gz = 0.0, 0.0, 0.0
         return g_x, g_y, g_z
 
     def get_magnetometer_data(self):
-        """Return (mx, my, mz) raw magnetometer values."""
+        """(report) Return (mx, my, mz) raw magnetometer values."""
         m_x, m_y, m_z = self.__mx, self.__my, self.__mz
         # self.__mx, self.__my, self.__mz = 0.0, 0.0, 0.0
         return m_x, m_y, m_z
 
     def get_imu_attitude_data(self, ToAngle=True):
-        """Return (roll, pitch, yaw) in degrees (default) or radians."""
+        """(report) Return (roll, pitch, yaw) in degrees (default) or radians."""
         if ToAngle:
             RtA = 57.2957795
             roll = self.__roll * RtA
@@ -1215,7 +1214,7 @@ class Rosmaster(object):
         return roll, pitch, yaw
 
     def get_motion_data(self):
-        """Return (vx, vy, vz) velocities from last report."""
+        """(report) Return (vx, vy, vz) velocities from last report."""
         val_vx = self.__vx
         val_vy = self.__vy
         val_vz = self.__vz
@@ -1223,19 +1222,19 @@ class Rosmaster(object):
         return val_vx, val_vy, val_vz
 
     def get_battery_voltage(self):
-        """Return battery voltage (float volts)."""
+        """(report) Return battery voltage (float volts)."""
         vol = self.__battery_voltage / 10.0
         # self.__battery_voltage = 0
         return vol
 
     def get_motor_encoder(self):
-        """Return wheel encoder counts tuple (m1,m2,m3,m4)."""
+        """(report) Return wheel encoder counts tuple (m1,m2,m3,m4)."""
         m1, m2, m3, m4 = self.__encoder_m1, self.__encoder_m2, self.__encoder_m3, self.__encoder_m4
         # self.__encoder_m1, self.__encoder_m2, self.__encoder_m3, self.__encoder_m4 = 0, 0, 0, 0
         return m1, m2, m3, m4
 
     def get_motion_pid(self):
-        """Return PID parameters [kp, ki, kd] or [-1, -1, -1] on timeout."""
+        """(request) Return PID parameters [kp, ki, kd] or [-1, -1, -1] on timeout."""
         self.__kp1 = 0
         self.__ki1 = 0
         self.__kd1 = 0
@@ -1272,7 +1271,7 @@ class Rosmaster(object):
     #     return [-1, -1, -1]
 
     def get_car_type_from_machine(self):
-        """Query MCU for stored car type (flash) or -1 on timeout."""
+        """(request) Query MCU for stored car type (flash) or -1 on timeout."""
         self.__request_data(self.FUNC_SET_CAR_TYPE)
         for i in range(0, 20):
             if self.__read_car_type != 0:
@@ -1284,7 +1283,7 @@ class Rosmaster(object):
 
 
     def get_version(self):
-        """Return firmware version (float like 1.1) or -1 if unavailable."""
+        """(request) Return firmware version (float like 1.1) or -1 if unavailable."""
         if self.__version_H == 0:
             self.__request_data(self.FUNC_VERSION)
             for i in range(0, 20):
